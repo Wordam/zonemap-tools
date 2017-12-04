@@ -5,9 +5,9 @@ from operator import itemgetter
 import numpy as np
 from shapely.geometry import Polygon
 import shapely.geometry as sg
-from utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
+from lib.utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
                    get_filename)
-from display import display_errors, display_graph
+from lib.display import display_errors, display_graph
 
 __MS__ = 0.5
 
@@ -371,4 +371,4 @@ def zonemap_xmls(ref_folder, hyp_folder, mask_folder=None):
     return sum_scores, avg_scores, sum_n_scores
 
 if __name__ == '__main__':
-    print(zonemap_xmls("input/all/reference/", "input/all/hypothesis"))
+    print(zonemap_xmls("input/all/reference/", "input/all/hypothesis", "input/all/images"))

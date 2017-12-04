@@ -9,9 +9,9 @@ import numpy as np
 import cv2
 from operator import itemgetter
 
-from utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
+from lib.utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
                    get_filename)
-from display import display_matches, display_graph
+from lib.display import display_matches, display_graph
 
 __MS__ = 0.5
 
@@ -227,7 +227,7 @@ def zonemapalt_xml(ref_path, hyp_path, threshold, mask_path=None):
     scores, n_scores = zonemapalt(ref_zones, sys_zones, threshold, mask_path)
     return scores, n_scores
 
-def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
+def zonemapalt_xmls(ref_folder, hyp_folder, mask_folder=None, threshold=0.15):
     """Perform the zonemapalt algorithm on xmls folders."""
     file_pairs = xmls_from_folder(ref_folder, hyp_folder)
     sum_scores = {}
@@ -252,4 +252,4 @@ def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
     return sum_scores, avg_scores, sum_n_scores
 
 if __name__ == '__main__':
-    print(zonemapalt_xmls("input/all/reference/", "input/all/hypothesis"))
+    print(zonemapalt_xmls("input/all/reference/", "input/all/hypothesis", "input/all/images"))
