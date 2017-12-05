@@ -15,7 +15,7 @@ __color_map__['Multiple'] = (228, 31, 31)
 
 def draw_polygon(img, polygon, color):
     """Draw a shapely polygon."""
-    print(polygon)
+    #print(polygon)
     if (isinstance(polygon, sg.collection.GeometryCollection)
             or isinstance(polygon, sg.multipolygon.MultiPolygon)):
         for geom in polygon.geoms:
