@@ -6,7 +6,7 @@ import shapely.geometry as sg
 import matplotlib.pyplot as plt
 import os
 from os.path import basename
-from utils import get_filename
+from lib.utils import get_filename
 import shutil
 
 __color_map__ = {}
@@ -111,29 +111,29 @@ def display_matches(matches, img_path, hyp_zones, alpha=0.4):
 
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"match.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"match.png"), cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_miss, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"miss.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"miss.png"), cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_false_alarm, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"false_alarm.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"false_alarm.png"), cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_split, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"split.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"split.png"), cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_merge, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"merge.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"merge.png"), cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_multiple, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite(out_folder+"multiple.png", cpy)
+    cv2.imwrite(os.path.join(out_folder,"multiple.png"), cpy)
 
-def display_errors(groups, img_path, alpha=0.4):
+def display_errors(groups, img_path, hyp_zones, alpha=0.4):
     """Display errors groups."""
     img = cv2.imread(img_path)
     img_cpy = img.copy()
@@ -184,6 +184,14 @@ def display_errors(groups, img_path, alpha=0.4):
     if os.path.exists(out_folder):
         shutil.rmtree(out_folder)
     os.makedirs(out_folder)
+
+    for _, hyp_zone in hyp_zones.items():
+        outline_polygon(img_cpy, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_miss, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_false_alarm, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_split, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_merge, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_match, hyp_zone, __color_map__["BLACK"])
 
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)

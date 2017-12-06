@@ -5,9 +5,9 @@ from operator import itemgetter
 import numpy as np
 from shapely.geometry import Polygon
 import shapely.geometry as sg
-from utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
+from lib.utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
                    get_filename)
-from display import display_errors, display_graph
+from lib.display import display_errors, display_graph
 
 __MS__ = 0.5
 
@@ -336,7 +336,7 @@ def zonemap(gt_zones, sys_zones, mask_path=None):
     groups = compute_errors(groups, gt_zones, sys_zones)
 
     if mask_path != None:
-        display_errors(groups, mask_path)
+        display_errors(groups, mask_path, sys_zones)
 
     groups = compute_scores(groups)
     results, n_results = compute_zonemap(groups, gt_zones)
@@ -361,7 +361,7 @@ def zonemap_xmls(ref_folder, hyp_folder, mask_folder=None):
             mask_path = '{}/{}.{}'.format(mask_folder, filename, 'jpg')
         _, current_score, n_scores = zonemap_xml(pair['ref_file'], pair['hyp_file'], mask_path)
 
-        out_folder = "zonemapresults/" + filename
+        out_folder = "output/zonemapresults/" + filename
         with open(out_folder + '/zonemapmetric.txt', 'w') as file:
             file.write('ZoneMap Measures \n')
             i = 0
@@ -384,7 +384,7 @@ def zonemap_xmls(ref_folder, hyp_folder, mask_folder=None):
         avg_scores[key] = float(value)/float(nb_files)
         avg_scores[key] = round(avg_scores[key], 2)
 
-    with open("zonemapresults/combinedzonemapmetric.txt", 'w') as file:
+    with open("output/zonemapresults/combinedzonemapmetric.txt", 'w') as file:
         file.write('ZoneMap Result ')
         file.write('\n\nTotal sum of ZoneMap scores of all files \n')
         i = 0

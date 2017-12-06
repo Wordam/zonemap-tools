@@ -9,9 +9,9 @@ import numpy as np
 import cv2
 from operator import itemgetter
 
-from utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
+from lib.utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
                    get_filename)
-from display import display_matches, display_graph
+from lib.display import display_matches, display_graph
 
 __MS__ = 0.5
 
@@ -228,7 +228,7 @@ def zonemapalt_xml(ref_path, hyp_path, threshold, mask_path=None):
     scores, n_scores = zonemapalt(ref_zones, sys_zones, threshold, mask_path)
     return scores, n_scores
 
-def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
+def zonemapalt_xmls(ref_folder, hyp_folder, mask_folder=None, threshold=0.15):
     """Perform the zonemapalt algorithm on xmls folders."""
     file_pairs = xmls_from_folder(ref_folder, hyp_folder)
     sum_scores = {}
@@ -241,7 +241,7 @@ def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
                 mask_path = '{}/{}.{}'.format(mask_folder, filename, 'jpg')
             current_score, n_scores = zonemapalt_xml(pair['ref_file'], pair['hyp_file'], threshold, mask_path)
 
-            out_folder = "zonemapaltresults/" + filename
+            out_folder = "output/zonemapaltresults/" + filename
             with open(out_folder + '/zonemapaltmetric.txt', 'w') as file:
                 file.write('ZoneMapAlt Measures \n')
                 i = 0
@@ -266,7 +266,7 @@ def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
         avg_scores[key] = float(value)/float(nb_files)
         avg_scores[key] = round(avg_scores[key], 2)
 
-    with open("zonemapaltresults/combinedzonemapaltmetric.txt", 'w') as file:
+    with open("output/zonemapaltresults/combinedzonemapaltmetric.txt", 'w') as file:
         file.write('ZoneMapAlt Result ')
         file.write('\n\nTotal sum of ZoneMapAlt scores of all files \n')
         i = 0
