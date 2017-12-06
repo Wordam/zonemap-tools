@@ -12,6 +12,7 @@ __color_map__['Match'] = (90, 239, 73)
 __color_map__['Merge'] = (255, 34, 255)
 __color_map__['Split'] = (239, 131, 73)
 __color_map__['Multiple'] = (228, 31, 31)
+__color_map__['BLACK'] = (255, 0, 0)
 
 def draw_polygon(img, polygon, color):
     """Draw a shapely polygon."""
@@ -31,7 +32,23 @@ def draw_polygon(img, polygon, color):
             # cv2.polylines(img, pts, True, color, 1)
             cv2.fillPoly(img, pts, color, 1)
 
-def display_matches(matches, img_path, alpha=0.4):
+def outline_polygon(img, polygon, color, thickness = 4):
+    """Outline a shapely polygon."""
+    if (isinstance(polygon, sg.collection.GeometryCollection)
+            or isinstance(polygon, sg.multipolygon.MultiPolygon)):
+        for geom in polygon.geoms:
+            if not isinstance(geom,sg.LineString):
+                outline_polygon(img, geom, color)
+    else:
+        if isinstance(polygon,list):
+            for geom in polygon:
+                outline_polygon(img, geom, color)
+        else:
+            pts = np.array(polygon.exterior.coords)
+            pts = np.int32([pts])
+            cv2.polylines(img, pts, True, color, thickness)
+
+def display_matches(matches, img_path, hyp_zones, alpha=0.4):
     """Display errors groups."""
     img = cv2.imread(img_path)
     img_cpy = img.copy()
@@ -73,29 +90,38 @@ def display_matches(matches, img_path, alpha=0.4):
             draw_polygon(img_cpy, match['zone'], __color_map__["Match"])
             draw_polygon(img_multiple, match['zone'], __color_map__["Match"])
 
+    for _, hyp_zone in hyp_zones.items():
+        outline_polygon(img_cpy, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_miss, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_false_alarm, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_split, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_merge, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_match, hyp_zone, __color_map__["BLACK"])
+        outline_polygon(img_multiple, hyp_zone, __color_map__["BLACK"])
+
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/match.png", cpy)
+    cv2.imwrite("output/match.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_miss, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/miss.png", cpy)
+    cv2.imwrite("output/miss.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_false_alarm, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/false_alarm.png", cpy)
+    cv2.imwrite("output/false_alarm.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_split, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/split.png", cpy)
+    cv2.imwrite("output/split.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_merge, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/merge.png", cpy)
+    cv2.imwrite("output/merge.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_multiple, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/multiple.png", cpy)
+    cv2.imwrite("output/multiple.png", cpy)
 
 def display_errors(groups, img_path, alpha=0.4):
     """Display errors groups."""
@@ -145,23 +171,23 @@ def display_errors(groups, img_path, alpha=0.4):
 
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/match.png", cpy)
+    cv2.imwrite("output/match.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_miss, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/miss.png", cpy)
+    cv2.imwrite("output/miss.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_false_alarm, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/false_alarm.png", cpy)
+    cv2.imwrite("output/false_alarm.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_split, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/split.png", cpy)
+    cv2.imwrite("output/split.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_merge, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("out/merge.png", cpy)
+    cv2.imwrite("output/merge.png", cpy)
 
 def display_graph(it_vect, datas):
     ax = plt.subplot(111, xlabel='β', ylabel='Number of class error')

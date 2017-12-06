@@ -215,7 +215,8 @@ def zonemapalt(ref_zones, hyp_zones, threshold, mask_path=None):
     matches, ref_links, hyp_links = make_matches(sorted_links, ref_zones, hyp_zones, threshold)
     matches = find_missed_areas(matches, ref_zones, hyp_zones, ref_links, hyp_links)
     if mask_path is not None:
-        display_matches(matches, mask_path)
+        print('Displaying matches')
+        display_matches(matches, mask_path, hyp_zones)
     scores,n_scores = compute_errors(matches)
     scores = compute_scores(scores, ref_zones)
     return scores, n_scores
