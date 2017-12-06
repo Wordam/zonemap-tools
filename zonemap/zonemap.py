@@ -5,9 +5,9 @@ from operator import itemgetter
 import numpy as np
 from shapely.geometry import Polygon
 import shapely.geometry as sg
-from lib.utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
+from utils import (zones_from_gedi_xml, square, xmls_from_folder, dsum, daverage,
                    get_filename)
-from lib.display import display_errors, display_graph
+from display import display_errors, display_graph
 
 __MS__ = 0.5
 
@@ -315,13 +315,13 @@ def compute_zonemap(groups, gt_rects):
         if error_details['merge']['surf'] > 0:
             n_merge += 1
     zonemap_score = (miss + false_alarm + split + merge) * 100 / float(gt_area)
-    return {'zonemap_score':zonemap_score,
-            'total_gt_area':gt_area,
-            'match':match,
-            'miss':miss,
-            'false_alarm': false_alarm,
-            'split': split,
-            'merge': merge}, {'match':n_match,
+    return {'zonemap_score':round(zonemap_score,2),
+            'total_gt_area':round(gt_area,2),
+            'match':round(match,2),
+            'miss':round(miss,2),
+            'false_alarm':round(false_alarm,2),
+            'split':round(split,2),
+            'merge':round(merge,2)}, {'match':n_match,
                               'miss':n_miss,
                               'false_alarm':n_false_alarm,
                               'split':n_split,
@@ -360,6 +360,21 @@ def zonemap_xmls(ref_folder, hyp_folder, mask_folder=None):
         if mask_folder is not None:
             mask_path = '{}/{}.{}'.format(mask_folder, filename, 'jpg')
         _, current_score, n_scores = zonemap_xml(pair['ref_file'], pair['hyp_file'], mask_path)
+
+        out_folder = "zonemapresults/" + filename
+        with open(out_folder + '/zonemapmetric.txt', 'w') as file:
+            file.write('ZoneMap Measures \n')
+            i = 0
+            for k, v in current_score.items():
+                i = i + 1
+                file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+            file.write('\n\nCount of ZoneMap Evaluation Parameters \n')
+            i = 0
+            for k, v in n_scores.items():
+                i = i + 1
+                file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+            file.close()
+
         sum_scores = dsum(sum_scores, current_score)
         sum_n_scores = dsum(sum_n_scores, n_scores)
 
@@ -367,6 +382,28 @@ def zonemap_xmls(ref_folder, hyp_folder, mask_folder=None):
     avg_scores = {}
     for key, value in sum_scores.items():
         avg_scores[key] = float(value)/float(nb_files)
+        avg_scores[key] = round(avg_scores[key], 2)
+
+    with open("zonemapresults/combinedzonemapmetric.txt", 'w') as file:
+        file.write('ZoneMap Result ')
+        file.write('\n\nTotal sum of ZoneMap scores of all files \n')
+        i = 0
+        for k, v in sum_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+
+        file.write('\n\nAverage of ZoneMap scores of all files \n')
+        i = 0
+        for k, v in avg_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+
+        file.write('\n\nTotal Count of ZoneMap Evaluation Parameters \n')
+        i = 0
+        for k, v in sum_n_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+        file.close()
 
     return sum_scores, avg_scores, sum_n_scores
 

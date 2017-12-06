@@ -67,6 +67,7 @@ def dsum(*dicts):
     for dictt in dicts:
         for key, value in dictt.items():
             ret[key] += value
+            ret[key] = round(ret[key],2)
     return dict(ret)
 
 def daverage(*dicts):
