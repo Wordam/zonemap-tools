@@ -95,7 +95,7 @@ def display_matches(matches, img_path, hyp_zones, alpha=0.4):
             draw_polygon(img_multiple, match['zone'], __color_map__["Match"])
 
     out_folder = basename(get_filename(img_path))
-    out_folder = "zonemapaltresults/" + out_folder
+    out_folder = "output/zonemapaltresults/" + out_folder
     if os.path.exists(out_folder):
         shutil.rmtree(out_folder)
     os.makedirs(out_folder)
@@ -180,7 +180,7 @@ def display_errors(groups, img_path, alpha=0.4):
             draw_polygon(img_match, match_poly, __color_map__["Match"])
 
     out_folder = basename(get_filename(img_path))
-    out_folder = "zonemapresults/" + out_folder
+    out_folder = "output/zonemapresults/" + out_folder
     if os.path.exists(out_folder):
         shutil.rmtree(out_folder)
     os.makedirs(out_folder)
