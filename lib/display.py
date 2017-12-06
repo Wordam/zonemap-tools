@@ -4,6 +4,10 @@ import cv2
 import numpy as np
 import shapely.geometry as sg
 import matplotlib.pyplot as plt
+import os
+from os.path import basename
+from utils import get_filename
+import shutil
 
 __color_map__ = {}
 __color_map__['False alarm'] = (43, 243, 240)
@@ -16,7 +20,7 @@ __color_map__['BLACK'] = (255, 0, 0)
 
 def draw_polygon(img, polygon, color):
     """Draw a shapely polygon."""
-    #print(polygon)
+   # print(polygon)
     if (isinstance(polygon, sg.collection.GeometryCollection)
             or isinstance(polygon, sg.multipolygon.MultiPolygon)):
         for geom in polygon.geoms:
@@ -90,6 +94,12 @@ def display_matches(matches, img_path, hyp_zones, alpha=0.4):
             draw_polygon(img_cpy, match['zone'], __color_map__["Match"])
             draw_polygon(img_multiple, match['zone'], __color_map__["Match"])
 
+    out_folder = basename(get_filename(img_path))
+    out_folder = "zonemapaltresults/" + out_folder
+    if os.path.exists(out_folder):
+        shutil.rmtree(out_folder)
+    os.makedirs(out_folder)
+
     for _, hyp_zone in hyp_zones.items():
         outline_polygon(img_cpy, hyp_zone, __color_map__["BLACK"])
         outline_polygon(img_miss, hyp_zone, __color_map__["BLACK"])
@@ -101,27 +111,27 @@ def display_matches(matches, img_path, hyp_zones, alpha=0.4):
 
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/match.png", cpy)
+    cv2.imwrite(out_folder+"match.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_miss, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/miss.png", cpy)
+    cv2.imwrite(out_folder+"miss.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_false_alarm, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/false_alarm.png", cpy)
+    cv2.imwrite(out_folder+"false_alarm.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_split, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/split.png", cpy)
+    cv2.imwrite(out_folder+"split.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_merge, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/merge.png", cpy)
+    cv2.imwrite(out_folder+"merge.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_multiple, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/multiple.png", cpy)
+    cv2.imwrite(out_folder+"multiple.png", cpy)
 
 def display_errors(groups, img_path, alpha=0.4):
     """Display errors groups."""
@@ -169,25 +179,31 @@ def display_errors(groups, img_path, alpha=0.4):
             draw_polygon(img_cpy, match_poly, __color_map__["Match"])
             draw_polygon(img_match, match_poly, __color_map__["Match"])
 
+    out_folder = basename(get_filename(img_path))
+    out_folder = "zonemapresults/" + out_folder
+    if os.path.exists(out_folder):
+        shutil.rmtree(out_folder)
+    os.makedirs(out_folder)
+
     cpy = img.copy()
     cv2.addWeighted(img_match, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/match.png", cpy)
+    cv2.imwrite(out_folder + "/match.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_miss, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/miss.png", cpy)
+    cv2.imwrite(out_folder + "/miss.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_false_alarm, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/false_alarm.png", cpy)
+    cv2.imwrite(out_folder + "/false_alarm.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_split, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/split.png", cpy)
+    cv2.imwrite(out_folder + "/split.png", cpy)
 
     cpy = img.copy()
     cv2.addWeighted(img_merge, alpha, cpy, 1 - alpha, 0, cpy)
-    cv2.imwrite("output/merge.png", cpy)
+    cv2.imwrite(out_folder + "/merge.png", cpy)
 
 def display_graph(it_vect, datas):
     ax = plt.subplot(111, xlabel='β', ylabel='Number of class error')

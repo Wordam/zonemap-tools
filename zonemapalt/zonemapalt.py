@@ -9,9 +9,9 @@ import numpy as np
 import cv2
 from operator import itemgetter
 
-from lib.utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
+from utils import (square, zones_from_gedi_xml, xmls_from_folder, dsum, daverage,
                    get_filename)
-from lib.display import display_matches, display_graph
+from display import display_matches, display_graph
 
 __MS__ = 0.5
 
@@ -179,12 +179,12 @@ def compute_errors(matches):
         if match['error_class'] == "Multiple":
             multiple += match['zone'].area * __MS__ * (match['ref_card']+match['hyp_card'])
             n_multiple += 1
-    return {'match':matchh,
-            'miss':miss,
-            'false_alarm': false_alarm,
-            'split': split,
-            'merge': merge,
-            'multiple': multiple}, {'match':n_match,
+    return {'match':round(matchh,2),
+            'miss':round(miss,2),
+            'false_alarm':round(false_alarm,2),
+            'split':round(split,2),
+            'merge':round(merge,2),
+            'multiple':round(multiple,2)}, {'match':n_match,
                                     'miss':n_miss,
                                     'false_alarm':n_fa,
                                     'split':n_split,
@@ -204,8 +204,8 @@ def compute_scores(scores, ref_zones):
     total_error = (scores['miss'] + scores['false_alarm'] + scores['split']
                    + scores['merge'] + scores['multiple'])
     zonemapalt_score = float(total_error)*100/float(ref_zones_area)
-    scores['zonemapalt_score'] = zonemapalt_score
-    scores['total_ref_area'] = ref_zones_area
+    scores['zonemapalt_score'] = round(zonemapalt_score,2)
+    scores['total_ref_area'] = round(ref_zones_area, 2)
     return scores
 
 def zonemapalt(ref_zones, hyp_zones, threshold, mask_path=None):
@@ -228,7 +228,7 @@ def zonemapalt_xml(ref_path, hyp_path, threshold, mask_path=None):
     scores, n_scores = zonemapalt(ref_zones, sys_zones, threshold, mask_path)
     return scores, n_scores
 
-def zonemapalt_xmls(ref_folder, hyp_folder, mask_folder=None, threshold=0.15):
+def zonemapalt_xmls(ref_folder, hyp_folder, threshold=0.15, mask_folder=None):
     """Perform the zonemapalt algorithm on xmls folders."""
     file_pairs = xmls_from_folder(ref_folder, hyp_folder)
     sum_scores = {}
@@ -240,6 +240,21 @@ def zonemapalt_xmls(ref_folder, hyp_folder, mask_folder=None, threshold=0.15):
             if mask_folder is not None:
                 mask_path = '{}/{}.{}'.format(mask_folder, filename, 'jpg')
             current_score, n_scores = zonemapalt_xml(pair['ref_file'], pair['hyp_file'], threshold, mask_path)
+
+            out_folder = "zonemapaltresults/" + filename
+            with open(out_folder + '/zonemapaltmetric.txt', 'w') as file:
+                file.write('ZoneMapAlt Measures \n')
+                i = 0
+                for k, v in current_score.items():
+                    i = i + 1
+                    file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+                file.write('\n\nCount of ZoneMapAlt Evaluation Parameters \n')
+                i = 0
+                for k, v in n_scores.items():
+                    i = i + 1
+                    file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+                file.close()
+
             sum_scores = dsum(sum_scores, current_score)
             sum_n_scores = dsum(sum_n_scores, n_scores)
 
@@ -249,6 +264,28 @@ def zonemapalt_xmls(ref_folder, hyp_folder, mask_folder=None, threshold=0.15):
     avg_scores = {}
     for key, value in sum_scores.items():
         avg_scores[key] = float(value)/float(nb_files)
+        avg_scores[key] = round(avg_scores[key], 2)
+
+    with open("zonemapaltresults/combinedzonemapaltmetric.txt", 'w') as file:
+        file.write('ZoneMapAlt Result ')
+        file.write('\n\nTotal sum of ZoneMapAlt scores of all files \n')
+        i = 0
+        for k, v in sum_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+
+        file.write('\n\nAverage of ZoneMapAlt scores of all files \n')
+        i = 0
+        for k, v in avg_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+
+        file.write('\n\nTotal Count of ZoneMapAlt Evaluation Parameters \n')
+        i = 0
+        for k, v in sum_n_scores.items():
+            i = i + 1
+            file.write('\n' + str(i) + ". " + str(k) + ' : ' + str(v))
+        file.close()
 
     return sum_scores, avg_scores, sum_n_scores
 
